@@ -55,14 +55,12 @@ species_list <- species_list[,-which(names(species_list) == "family")]
 species_list <- species_list[,-which(names(species_list) == "genus")]
 sum(is.na(species_list)) #all good
 
-
 #Obtaining coordinates point for each register based on the SiteCode
 joined_data <- merge(species_list, points[, c('SiteCode.x', 'long1', 'lat1')], 
                      by.x = 'SiteCode', by.y = 'SiteCode.x', sort = FALSE, all.y = TRUE)
 sum(is.na(joined_data))
 unique(joined_data$SiteCode) #581 sample points with coordinates
 unique(points$SiteCode.x)
-
 
 #TreeCo points: filtering points based on their confiability
 points = points %>% filter(confiabilidade %in% c('boa', 'exata', 'precisa')) #3 points removed

@@ -69,8 +69,8 @@ occs$numTombo <- getTombo(occs[, "recordedBy.new"],
                           occs[, "recordNumber.new"])
 
 #n_occur <- data.frame(table(occs$numTombo))
-#n_occur[n_occur$Freq > 1,]
-#occs[occs$numTombo %in% occs$numTombo[n_occur$Freq > 1],]
+#n_occur[n_occur$Freq > 1, ]
+#occs[occs$numTombo %in% occs$numTombo[n_occur$Freq > 1], ]
 
 #Preparing to search for duplicates
 dups <- prepDup(occs, comb.fields = list(c("family", "col.last.name", "col.number", "col.loc"),

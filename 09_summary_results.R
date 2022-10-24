@@ -1,4 +1,4 @@
-#### SUMMARIZING THE RESULTS ####
+##### SUMMARIZING THE RESULTS #####
 all.crit <- readRDS('data/all.criteria.rds')
 all.crit2 <- readRDS('data/all.criteria_herb.rds')
 sc_trees <- read.csv('sc_trees_list.csv', sep = ';', colClasses = c('NULL', NA, NA))
@@ -13,10 +13,9 @@ library(ggpubr)
 
 ##### THE CONSERVATION STATUS OF SANTA CATARINA FLORA #####
 
-
 #How many species were assessed?
-dim(all.crit)[1] # 502 species in inventories only
-dim(all.crit2)[1] # 555 species in inventories+herbaria
+dim(all.crit)[1] #502 species in inventories only
+dim(all.crit2)[1] #555 species in inventories+herbaria
 
 #How many threatened species?
 all.crit <- all.crit %>% dplyr::rename(category.inv = category)
@@ -24,8 +23,8 @@ all.crit2 <- all.crit2 %>% dplyr::rename(category.herb = category)
 names(all.crit2)[39] <- "category.inv"
 
 ## Overall
-sum(table(all.crit$category.inv)[c("CR", "EN", "VU")]) # 443 threatened INVENTORY
-sum(table(all.crit2$category.herb)[c("CR", "EN", "VU")]) # 477 threatened HERBARIA
+sum(table(all.crit$category.inv)[c("CR", "EN", "VU")]) #443 threatened INVENTORY
+sum(table(all.crit2$category.herb)[c("CR", "EN", "VU")]) #477 threatened HERBARIA
 
 #Threatened %
 round(100 * sum(table(all.crit$category.inv)[c("CR", "EN", "VU")]) / dim(all.crit)[1], 1) #88.2% INVENTORY
@@ -43,16 +42,14 @@ round(100 * table(all.crit$category.inv)[c("CR", "EN", "VU", "NT", "LC")] /
 round(100 * table(all.crit2$category.herb)[c("CR", "EN", "VU", "NT", "LC")] / 
         dim(all.crit)[1], 1) #8.2% CR, 39.4% EN, 47.4% VU HERBARIA
 
-
 #How many near threatened
-round(100 * sum(table(all.crit$category.inv)[c("NT")]) / dim(all.crit)[1], 1) #10.4%
-
-round(100 * sum(table(all.crit2$category.herb)[c("NT")]) / dim(all.crit)[1], 1) #11.4%
+round(100 * sum(table(all.crit$category.inv)[c("NT")]) / dim(all.crit)[1], 1) #10.4% INVENTORY
+round(100 * sum(table(all.crit2$category.herb)[c("NT")]) / dim(all.crit)[1], 1) #11.4% HERBARIA
 
 #IUCN categories INVENTORY
-tmp0 <- table(all.crit$main.criteria[!all.crit$category.inv %in% c("LC","NA","DD","NT")])
-tmp <- sort(round(100 *  tmp0 / 
-                    dim(all.crit[!all.crit$category.inv %in% c("LC","NA","DD","NT"),])[1], 4))
+tmp0 <- table(all.crit$main.criteria[!all.crit$category.inv %in% c("LC", "NA", "DD", "NT")])
+tmp <- sort(round(100 * tmp0 / 
+                    dim(all.crit[!all.crit$category.inv %in% c("LC", "NA", "DD", "NT"),])[1], 4))
 sum(tmp[grepl("A1", names(tmp))]) #0% of the threatened species had A1 within its main criteria INVENTORY
 sum(tmp[grepl("A2", names(tmp))]) #77.87% of the threatened species had A2 within its main criteria INVENTORY
 sum(tmp[grepl("B2", names(tmp))]) #34.53% of the threatened species had B2 within its main criteria INVENTORY
@@ -62,9 +59,9 @@ sum(tmp[grepl("C2", names(tmp))]) #No threatened species had C within its main c
 sum(tmp[grepl("D", names(tmp))]) #No threatened species had D within its main criteria INVENTORY
 
 #IUCN categories HERBARIA
-tmp0 <- table(all.crit2$main.criteria[!all.crit2$category.herb %in% c("LC","NA","DD","NT")])
-tmp <- sort(round(100 *  tmp0 / 
-                    dim(all.crit2[!all.crit2$category.herb %in% c("LC","NA","DD","NT"),])[1], 4))
+tmp0 <- table(all.crit2$main.criteria[!all.crit2$category.herb %in% c("LC", "NA", "DD", "NT")])
+tmp <- sort(round(100 * tmp0 / 
+                    dim(all.crit2[!all.crit2$category.herb %in% c("LC", "NA", "DD", "NT"), ])[1], 4))
 sum(tmp[grepl("A1", names(tmp))]) #0% of the threatened species had A1 within its main criteria HERBARIA
 sum(tmp[grepl("A2", names(tmp))]) #80.71% of the threatened species had A2 within its main criteria HERBARIA
 sum(tmp[grepl("B2", names(tmp))]) #29.55% of the threatened species had B2 within its main criteria HERBARIA
@@ -75,19 +72,19 @@ sum(tmp[grepl("D", names(tmp))]) #No threatened species had D within its main cr
 
 
 #Mean population reduction (won't change from inv to herbs — can only be measured for inventories)
-summary(all.crit$reduction_A12); hist(all.crit$reduction_A12, nclass=40) #51.50% mean reduction
-table(all.crit$reduction_A12>=90) #No species
-table(all.crit$reduction_A12>=80) #No species
-table(all.crit$reduction_A12>=70) #12 species, 2%
-table(all.crit$reduction_A12>=50) #343, 68%
-table(all.crit$reduction_A12<=30) #31, 6%
+summary(all.crit$reduction_A12); hist(all.crit$reduction_A12, nclass = 40) #51.50% mean reduction
+table(all.crit$reduction_A12 >= 90) #No species
+table(all.crit$reduction_A12 >= 80) #No species
+table(all.crit$reduction_A12 >= 70) #12 species, 2%
+table(all.crit$reduction_A12 >= 50) #343, 68%
+table(all.crit$reduction_A12 <= 30) #31, 6%
 
 #Last 25 years
-table(all.crit$reduction_A12.25ys>=90) #No species
-table(all.crit$reduction_A12.25ys>=80) #No species
-table(all.crit$reduction_A12.25ys>=70) #No species
-table(all.crit$reduction_A12.25ys>=50) #2 species,0.3%
-table(all.crit$reduction_A12.25ys<=30) #111 species, 22%
+table(all.crit$reduction_A12.25ys >= 90) #No species
+table(all.crit$reduction_A12.25ys >= 80) #No species
+table(all.crit$reduction_A12.25ys >= 70) #No species
+table(all.crit$reduction_A12.25ys >= 50) #2 species,0.3%
+table(all.crit$reduction_A12.25ys <= 30) #111 species, 22%
 
 
 ##### EOO and AOO ##### INVENTORY
@@ -96,12 +93,12 @@ tmp = all.crit %>% filter(category.inv %in% c("CR", "VU", "EN"))
 
 #SMALL AOO AND EOO
 summary(all.crit$AOO)
-hist(log10(all.crit$AOO), nclass=40)
-abline(v=log10(c(10,500,2000)), col=c("red","darkorange","gold"))
+hist(log10(all.crit$AOO), nclass = 40)
+abline(v = log10(c(10,500,2000)), col = c("red", "darkorange", "gold"))
 confint(lm(all.crit$AOO ~ 1))
 summary(all.crit$nbe_loc_total)
-hist(log10(all.crit$nbe_loc_total), nclass=40)
-abline(v=log10(c(1,5,10)), col=c("red","darkorange","gold"))
+hist(log10(all.crit$nbe_loc_total), nclass = 40)
+abline(v = log10(c(1, 5, 10)), col = c("red", "darkorange", "gold"))
 
 confint(lm(all.crit$nbe_loc_total ~ 1))
 100*table(all.crit$nbe_loc_total>10)/dim(all.crit)[1]
@@ -109,55 +106,51 @@ confint(lm(all.crit$nbe_loc_total ~ 1))
 
 ##### EOO and AOO ##### HERBARIA
 #AOO
-summary(all.crit2$AOO)# HERBARIA
-hist(log10(all.crit2$AOO), nclass=40)# HERBARIA
-abline(v=log10(c(10, 500, 2000)), col=c("red","darkorange","gold"))# HERBARIA
+summary(all.crit2$AOO) #HERBARIA
+hist(log10(all.crit2$AOO), nclass = 40) #HERBARIA
+abline(v = log10(c(10, 500, 2000)), col = c("red", "darkorange", "gold")) #HERBARIA
 confint(lm(all.crit2$AOO ~ 1))# HERBARIA
-table(all.crit2$AOO < 2000 & all.crit2$nbe_loc_total <= 10) #Threatened under AOO (28.28%)# HERBARIA
-table(all.crit2$AOO < 2000 & all.crit2$nbe_loc_total <=10 & # HERBARIA
-        all.crit2$sever.frag == TRUE) #Threatened under AOO and severely fragmented (19.63%)# HERBARIA
+table(all.crit2$AOO < 2000 & all.crit2$nbe_loc_total <= 10) #Threatened under AOO (28.28%) #HERBARIA
+table(all.crit2$AOO < 2000 & all.crit2$nbe_loc_total <= 10 & #HERBARIA
+        all.crit2$sever.frag == TRUE) #Threatened under AOO and severely fragmented (19.63%) #HERBARIA
 
 #EOO
-summary(all.crit2$EOO)# HERBARIA
-hist(log10(all.crit2$EOO), nclass=40)# HERBARIA
-abline(v=log10(c(10, 500, 2000)), col=c("red","darkorange","gold"))# HERBARIA
-confint(lm(all.crit2$EOO ~ 1))# HERBARIA
-table(all.crit2$EOO < 20000 & all.crit2$nbe_loc_total <= 10) #Threatened under EOO (17.83%)# HERBARIA
-table(all.crit2$EOO < 20000 & all.crit2$nbe_loc_total &# HERBARIA
-        
-        all.crit2$sever.frag == TRUE) #Threatened under AOO and severely fragmented (11.71%)# HERBARIA
+summary(all.crit2$EOO) #HERBARIA
+hist(log10(all.crit2$EOO), nclass = 40) #HERBARIA
+abline(v = log10(c(10, 500, 2000)), col = c("red", "darkorange", "gold"))# HERBARIA
+confint(lm(all.crit2$EOO ~ 1)) #HERBARIA
+table(all.crit2$EOO < 20000 & all.crit2$nbe_loc_total <= 10) #Threatened under EOO (17.83%) #HERBARIA
+table(all.crit2$EOO < 20000 & all.crit2$nbe_loc_total & #HERBARIA
+      all.crit2$sever.frag == TRUE) #Threatened under AOO and severely fragmented (11.71%) #HERBARIA
 
 
-#####################
-#NUMBER OF LOCATIONS#
-#####################
+###############################
+##### NUMBER OF LOCATIONS #####
+###############################
 #How many species occurred in more than 10 locations? INVENTORY
 summary(all.crit$nbe_loc_total) #INVENTORY
-hist(log10(all.crit$nbe_loc_total), nclass=40) #INVENTORY
-abline(v=log10(c(1, 5, 10)), col=c("red","darkorange","gold")) #INVENTORY
+hist(log10(all.crit$nbe_loc_total), nclass = 40) #INVENTORY
+abline(v = log10(c(1, 5, 10)), col = c("red", "darkorange", "gold")) #INVENTORY
 confint(lm(all.crit$nbe_loc_total ~ 1)) #INVENTORY
-table(all.crit$nbe_loc_total>10)/502 #66.73% occurs in more than 10 localities #INVENTORY
-table(all.crit$sever.frag>10)/502 #No species that occur in more than 10 localities are severely fragmented
+table(all.crit$nbe_loc_total > 10)/502 #66.73% occurs in more than 10 localities #INVENTORY
+table(all.crit$sever.frag > 10)/502 #No species that occur in more than 10 localities are severely fragmented
 
 #How many species are severely fragmented? #INVENTORY
 table(all.crit$sever.frag) #25.09% of all species are severely fragmented #INVENTORY
 
-
-#####################
-#NUMBER OF LOCATIONS#
-#####################
+###############################
+##### NUMBER OF LOCATIONS #####
+###############################
 #How many species occurred in more than 10 locations? HERBARIA
 summary(all.crit2$nbe_loc_total) #HERBARIA
-hist(log10(all.crit2$nbe_loc_total), nclass=40) #HERBARIA
-abline(v=log10(c(1, 5, 10)), col=c("red","darkorange","gold")) #HERBARIA
+hist(log10(all.crit2$nbe_loc_total), nclass = 40) #HERBARIA
+abline(v=log10(c(1, 5, 10)), col = c("red", "darkorange", "gold")) #HERBARIA
 confint(lm(all.crit2$nbe_loc_total ~ 1)) #HERBARIA
-table(all.crit2$nbe_loc_total>10)/555 #71.71% occurs in more than 10 localities
-table(all.crit2$sever.frag>10)/555 #No species that occur in more than 10 localities are severely fragmented
+table(all.crit2$nbe_loc_total > 10)/555 #71.71% occurs in more than 10 localities
+table(all.crit2$sever.frag > 10)/555 #No species that occur in more than 10 localities are severely fragmented
 
 #How many species are severely fragmented? #HERBARIA
 table(all.crit2$sever.frag) #20.72% of all species are severely fragmented #HERBARIA
-
-
 
 ##### Main changes between categories and type of data (inv x inv+herbaria) #####
 df = all.crit2[, c("category.herb", "category.inv")]
@@ -169,31 +162,29 @@ df[is.na(df)] <- "DD"
 missing_sp <- data.frame(category.herb = rep("NE", 22), category.inv = rep("DD", 22))
 df <- rbind(df, missing_sp)
 
-
 #Inventory vs Herbaria
 tmp <- table(paste0(df$category.herb,"_herb"), df$category.inv)
 #LC to CR
 100 * sum(tmp[c("CR_herb"), c("LC","NT")]) / sum(tmp) #no species became more threatened
 
-
 #Threatened to not Threatened
 100 * sum(tmp[c("LC_herb", "NT_herb"), c("CR", "EN", "VU")]) /
   sum(tmp) #1.9% of species became not threatened
 
-count(df %>% filter(category.herb != "NE" & category.inv == "DD")) #53 species were assessed
+count(df %>% filter(category.herb != "NE" & category.inv == "DD")) #53 new species were assessed
 #after adding herbaria data
 
 # Occurrence insided protected areas
-table(all.crit$protected>0) / dim(all.crit)[1] #65.33% of occurrences are inside PAs INVENTORY
-table(all.crit2$protected>0) / dim(all.crit2)[1] #70.99% of occurrences are inside PAs HERBARIA
+table(all.crit$protected > 0) / dim(all.crit)[1] #65.33% of occurrences are inside PAs INVENTORY
+table(all.crit2$protected > 0) / dim(all.crit2)[1] #70.99% of occurrences are inside PAs HERBARIA
 
 #INVENTORY
-table(all.crit$protected[all.crit$category.inv %in% c("CR","EN","VU")]>0) / 
-  dim(all.crit[all.crit$category.inv %in% c("CR","EN","VU"),])[1] #62.97% of threat. occurr. are inside PAs
+table(all.crit$protected[all.crit$category.inv %in% c("CR", "EN", "VU")] > 0) / 
+  dim(all.crit[all.crit$category.inv %in% c("CR", "EN", "VU"), ])[1] #62.97% of threat. occurr. are inside PAs
 
 #HERBARIA
-table(all.crit2$protected[all.crit2$category.herb %in% c("CR","EN","VU")]>0) / 
-  dim(all.crit2[all.crit2$category.herb %in% c("CR","EN","VU"),])[1] #68.13% of threat. occurr. are inside PAs
+table(all.crit2$protected[all.crit2$category.herb %in% c("CR", "EN", "VU")]>0) / 
+  dim(all.crit2[all.crit2$category.herb %in% c("CR", "EN", "VU"), ])[1] #68.13% of threat. occurr. are inside PAs
 
 
 #INVENTORY
@@ -209,7 +200,6 @@ table(cr_spp$protected) #94% of all CR species are not inside PAs
 cr_spp = all.crit2 %>% filter(category.herb == "CR")
 table(cr_spp$main.criteria) #2 under EOO, 35 under AOO, 4 under AOO+EOO
 table(cr_spp$protected) #85.36% of all CR species are not inside PAs
-
 
 
 ##### THE INFLUENCE OF USING DIFFERENT CRITERIA ##### INVENTORY #####
@@ -236,24 +226,23 @@ rl3 <- round(red::rli(tmp$category_C, boot = TRUE, runs = 10),4) #0.567 0.581 0.
 rl4 <- round(red::rli(tmp$category_D, boot = TRUE, runs = 50000), 4) #0.6 0.6 0.6
 
 #% of threatened species per criteria
-ts0 <- round(100*sum(mat1[-3,]) / sum(mat1),2) #88.25%, all criteria
-ts1 <- round(100*sum(mat1[,-3]) / sum(mat1),2) #74.5%, only A
-ts2 <- round(100*sum(mat2[,-3]) / sum(mat2),2) #31.67%, only B
-ts3 <- round(100*sum(mat3[,-2]) / sum(mat3),2) #1.59%, only C
-ts4 <- round(100*sum(mat4[,-1]) / sum(mat4),2) #16.53%, only D
+ts0 <- round(100*sum(mat1[-3, ]) / sum(mat1), 2) #88.25%, all criteria
+ts1 <- round(100*sum(mat1[, -3]) / sum(mat1), 2) #74.5%, only A
+ts2 <- round(100*sum(mat2[, -3]) / sum(mat2), 2) #31.67%, only B
+ts3 <- round(100*sum(mat3[, -2]) / sum(mat3), 2) #1.59%, only C
+ts4 <- round(100*sum(mat4[, -1]) / sum(mat4), 2) #16.53%, only D
 
 
 ## Table (S)1? ##
-tabS1 <- matrix(c(ts1, paste0(rl1[2]," [",paste0(round(rl1[c(1,3)],3), collapse = "-"),"]"),
-                  ts2, paste0(rl2[2]," [",paste0(round(rl2[c(1,3)],3), collapse = "-"),"]"),
-                  ts3, paste0(rl3[2]," [",paste0(round(rl3[c(1,3)],3), collapse = "-"),"]"),
-                  ts4, paste0(rl4[2]," [",paste0(round(rl4[c(1,3)],3), collapse = "-"),"]"),
-                  ts0, paste0(rl0[2]," [",paste0(round(rl0[c(1,3)],3), collapse = "-"),"]")),
+tabS1 <- matrix(c(ts1, paste0(rl1[2], " [", paste0(round(rl1[c(1, 3)], 3), collapse = "-"), "]"),
+                  ts2, paste0(rl2[2], " [", paste0(round(rl2[c(1, 3)], 3), collapse = "-"), "]"),
+                  ts3, paste0(rl3[2], " [", paste0(round(rl3[c(1, 3)], 3), collapse = "-"), "]"),
+                  ts4, paste0(rl4[2], " [", paste0(round(rl4[c(1, 3)], 3), collapse = "-"), "]"),
+                  ts0, paste0(rl0[2], " [", paste0(round(rl0[c(1, 3)], 3), collapse = "-"), "]")),
                   nrow = 5, ncol = 2, byrow = TRUE,
-                  dimnames = list(c("catA","catB","catC","catD","all"), c("Threatened","RLI")))
+                  dimnames = list(c("catA", "catB", "catC", "catD", "all"), c("Threatened", "RLI")))
 tabS1
-write.csv(tabS1,"TableS1.csv")
-
+write.csv(tabS1, "TableS1.csv")
 
 
 ##### THE INFLUENCE OF USING DIFFERENT CRITERIA ##### HERBARIA #####
@@ -263,7 +252,7 @@ tmp <- all.crit2[!is.na(all.crit2$reduction_A12) &  # Assessed under criterion A
                   !all.crit2$category.herb %in% "NA", ]
 dim(tmp)[1] ## 502 species
 100*dim(tmp)[1]/dim(all.crit2)[1] #90.45% of species classified within criteria A or B
-tmp$category.herb[tmp$category.herb %in% c("LC","NT")] <- "LC+NT"
+tmp$category.herb[tmp$category.herb %in% c("LC", "NT")] <- "LC+NT"
 
 #All species
 mat1 <- table(tmp[, c("category.herb","category_A")]) ## All vs. A
@@ -280,19 +269,18 @@ rl3 <- round(red::rli(tmp$category_C, boot = TRUE, runs = 10),4) #0.529 0.563 0.
 rl4 <- round(red::rli(tmp$category_D, boot = TRUE, runs = 50000), 4) #0.6 0.6 0.6
 
 #% of threatened species per criteria
-ts0 <- round(100*sum(mat1[-3,]) / sum(mat1),2) #86.06%, all criteria #ajeitar na mão WTF
-ts1 <- round(100*sum(mat1[,-3]) / sum(mat1),2) #74.5%, only A
-ts2 <- round(100*sum(mat2[,-3]) / sum(mat2),2) #21.71%, only B
-ts3 <- round(100*sum(mat3[,-2]) / sum(mat3),2) #1.59%, only C
-ts4 <- round(100*sum(mat4[,-1]) / sum(mat4),2) #16.53%, only D
-
+ts0 <- round(100*sum(mat1[-3, ]) / sum(mat1), 2) #86.06%, all criteria #ajeitar na mão WTF
+ts1 <- round(100*sum(mat1[, -3]) / sum(mat1), 2) #74.5%, only A
+ts2 <- round(100*sum(mat2[, -3]) / sum(mat2), 2) #21.71%, only B
+ts3 <- round(100*sum(mat3[, -2]) / sum(mat3), 2) #1.59%, only C
+ts4 <- round(100*sum(mat4[, -1]) / sum(mat4), 2) #16.53%, only D
 
 ## Table (S)1? ##
-tabS1 <- matrix(c(ts1, paste0(rl1[2]," [",paste0(round(rl1[c(1,3)],3), collapse = "-"),"]"),
-                  ts2, paste0(rl2[2]," [",paste0(round(rl2[c(1,3)],3), collapse = "-"),"]"),
-                  ts3, paste0(rl3[2]," [",paste0(round(rl3[c(1,3)],3), collapse = "-"),"]"),
-                  ts4, paste0(rl4[2]," [",paste0(round(rl4[c(1,3)],3), collapse = "-"),"]"),
-                  ts0, paste0(rl0[2]," [",paste0(round(rl0[c(1,3)],3), collapse = "-"),"]")),
+tabS1 <- matrix(c(ts1, paste0(rl1[2], " [", paste0(round(rl1[c(1, 3)], 3), collapse = "-"), "]"),
+                  ts2, paste0(rl2[2], " [", paste0(round(rl2[c(1, 3)], 3), collapse = "-"), "]"),
+                  ts3, paste0(rl3[2], " [", paste0(round(rl3[c(1, 3)], 3), collapse = "-"), "]"),
+                  ts4, paste0(rl4[2], " [", paste0(round(rl4[c(1, 3)], 3), collapse = "-"), "]"),
+                  ts0, paste0(rl0[2], " [", paste0(round(rl0[c(1, 3)], 3), collapse = "-"), "]")),
                 nrow = 5, ncol = 2, byrow = TRUE,
                 dimnames = list(c("catA","catB","catC","catD","all"), c("Threatened","RLI")))
 tabS1
@@ -307,7 +295,8 @@ source('scripts/myPieDonut.R')
 {
 ## Colors for each category
 cores <- c(CR = "red", EN = "darkorange", VU = "gold", 
-           NT = "yellowgreen", LC = "forestgreen", `NA` = "lightgrey", NE = "darkgrey")
+           NT = "yellowgreen", LC = "forestgreen", 
+           `NA` = "lightgrey", NE = "darkgrey")
 
 
 ##################
@@ -318,24 +307,24 @@ pie.df <- all.crit[,c("category.inv","main.criteria")]
 names(pie.df)[1] <- "category"
 pie.df$category[pie.df$category %in% "CR_PE"] <- "CR" 
 pie.df$main.criteria[pie.df$main.criteria %in% "A1+A2+B1+B2+C1+C2+D"] <- "all" 
-pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+B1+B2+C1","A1+A2+B2+C1")] <- "other" #"A+B+C"
-pie.df$main.criteria[pie.df$main.criteria %in% c("A2+C1","A1+A2+C1+C2","A1+A2+C1")] <- "other" #"A+C"
-pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+B2","A2+B1+B2","A2+B2","A1+A2+B1+B2")] <- "A2, B2"
+pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+B1+B2+C1", "A1+A2+B2+C1")] <- "other" #"A+B+C"
+pie.df$main.criteria[pie.df$main.criteria %in% c("A2+C1", "A1+A2+C1+C2", "A1+A2+C1")] <- "other" #"A+C"
+pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+B2", "A2+B1+B2", "A2+B2", "A1+A2+B1+B2")] <- "A2, B2"
 pie.df$main.criteria[pie.df$main.criteria %in% c("B1")] <- "other"
 pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+C2+D")] <- "other" #"A+C+D"
 pie.df$main.criteria[is.na(pie.df$main.criteria)] <- "other"
 pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2")] <- "A2"
 pie.df$main.criteria[pie.df$category %in% "NA"] <- ""
-pie.df <- pie.df[order(match(pie.df$category, names(cores)[-1])),]
-pie.df <- pie.df[!pie.df$category %in% "DD",]
+pie.df <- pie.df[order(match(pie.df$category, names(cores)[-1])), ]
+pie.df <- pie.df[!pie.df$category %in% "DD", ]
 pie.df$main.criteria[pie.df$main.criteria %in% c("B1+B2")] <- "B1+2"
 
-#### PIE DONUT #### INVENTORY
+##### PIE DONUT — INVENTORY #####
 dados <- pie.df
 
 pie.all <- my.PieDonut(dados, aes(category, main.criteria),
-                       ratioByGroup=FALSE, showPieName = FALSE,
-                       start=75,r0=0, r1=1,r2=1.3,
+                       ratioByGroup = FALSE, showPieName = FALSE,
+                       start = 75,r0 = 0, r1 = 1,r2 = 1.3,
                        showRatioThreshold = 0.02, labelpositionThreshold =  0.03,
                        main.colors = cores,
                        #donut.colors = NULL,
@@ -345,8 +334,8 @@ pie.all <- my.PieDonut(dados, aes(category, main.criteria),
                        title = "A) Forest surveys only")
 
 donut.all <- my.PieDonut(dados, aes(category, main.criteria),
-                         ratioByGroup=FALSE, showPieName = FALSE,
-                         start=75,r0=0, r1=1,r2=1.3,
+                         ratioByGroup = FALSE, showPieName = FALSE,
+                         start = 75,r0 = 0, r1 = 1,r2 = 1.3,
                          showRatioThreshold = 0.02, labelpositionThreshold =  0.03,
                          main.colors = cores,
                          #donut.colors = NULL,
@@ -359,29 +348,29 @@ donut.all <- my.PieDonut(dados, aes(category, main.criteria),
 pie.donut.all <- ggdraw(pie.all) + draw_plot(donut.all)
 pie.donut.all  
 
-#Creating and organizing the data frame to be plotted #### HERBARIA
-pie.df <- all.crit2[,c("category.herb","main.criteria")]
+#####Creating and organizing the data frame to be plotted ##### HERBARIA
+pie.df <- all.crit2[, c("category.herb", "main.criteria")]
 names(pie.df)[1] <- "category"
 pie.df$category[pie.df$category %in% "CR_PE"] <- "CR" 
 pie.df$main.criteria[pie.df$main.criteria %in% "A1+A2+B1+B2+C1+C2+D"] <- "all" 
-pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+B1+B2+C1","A1+A2+B2+C1")] <- "other" #"A+B+C"
-pie.df$main.criteria[pie.df$main.criteria %in% c("A2+C1","A1+A2+C1+C2","A1+A2+C1")] <- "other" #"A+C"
-pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+B2","A2+B1+B2","A2+B2","A1+A2+B1+B2")] <- "A2, B2"
+pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+B1+B2+C1", "A1+A2+B2+C1")] <- "other" #"A+B+C"
+pie.df$main.criteria[pie.df$main.criteria %in% c("A2+C1", "A1+A2+C1+C2", "A1+A2+C1")] <- "other" #"A+C"
+pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+B2", "A2+B1+B2", "A2+B2", "A1+A2+B1+B2")] <- "A2, B2"
 pie.df$main.criteria[pie.df$main.criteria %in% c("B1")] <- "other"
 pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2+C2+D")] <- "other" #"A+C+D"
 pie.df$main.criteria[is.na(pie.df$main.criteria)] <- "other"
 pie.df$main.criteria[pie.df$main.criteria %in% c("A1+A2")] <- "A2"
 pie.df$main.criteria[pie.df$category %in% "NA"] <- ""
-pie.df <- pie.df[order(match(pie.df$category, names(cores)[-1])),]
-pie.df <- pie.df[!pie.df$category %in% "DD",]
+pie.df <- pie.df[order(match(pie.df$category, names(cores)[-1])), ]
+pie.df <- pie.df[!pie.df$category %in% "DD", ]
 pie.df$main.criteria[pie.df$main.criteria %in% c("B1+B2")] <- "B1+2"
 
-#### PIE DONUT #### HERBARIA
+##### PIE DONUT — HERBARIA #####
 dados <- pie.df
 
 pie.all <- my.PieDonut(dados, aes(category, main.criteria),
-                       ratioByGroup=FALSE, showPieName = FALSE,
-                       start=75,r0=0, r1=1,r2=1.3,
+                       ratioByGroup = FALSE, showPieName = FALSE,
+                       start = 75,r0 = 0, r1 = 1,r2 = 1.3,
                        showRatioThreshold = 0.02, labelpositionThreshold = 0.03,
                        main.colors = cores,
                        #donut.colors = NULL,
@@ -391,8 +380,8 @@ pie.all <- my.PieDonut(dados, aes(category, main.criteria),
                        title = "B) Forest surveys plus herbaria")
 
 donut.all <- my.PieDonut(dados, aes(category, main.criteria),
-                         ratioByGroup=FALSE, showPieName = FALSE,
-                         start=75,r0=0, r1=1,r2=1.3,
+                         ratioByGroup = FALSE, showPieName = FALSE,
+                         start = 75,r0 = 0, r1 = 1,r2 = 1.3,
                          showRatioThreshold = 0.02, labelpositionThreshold =  0.03,
                          main.colors = cores,
                          #donut.colors = NULL,
@@ -405,10 +394,9 @@ donut.all <- my.PieDonut(dados, aes(category, main.criteria),
 pie.donut.all2 <- ggdraw(pie.all) + draw_plot(donut.all)
 pie.donut.all2 
 
-
 final = ggarrange(pie.donut.all, pie.donut.all2,
                   ncol = 2,
-                  font.label = list(size=16),
+                  font.label = list(size = 16),
                   align = "h")
 
 final = annotate_figure(final, 
@@ -418,6 +406,8 @@ final = annotate_figure(final,
 ggsave2("Figure1_NEW_herb.jpg", final, "jpeg", "figures/",
         width = 30, height = 20, units = "cm", dpi = 300)
 }
+
+
 ##### FIGURE 2 #####
 
 ##### NEW DATA FOR IMAGES #####
@@ -439,20 +429,19 @@ all.crit <- rbind(all.crit, not_found_inv)
 all.crit2 <- rbind(all.crit2, not_found_herb)
 
 
-
-# Previous vs. new assessments
+##### Inventory vs herbaria #####
 library(circlize)
 
 ####Figure parameters####
 {
 jpeg(filename = "figures/Figure2_NEW_TEST.jpg", width = 3750, height = 2000, units = "px", pointsize = 12,
-     res = 300, bg="white", quality = 100)
+     res = 300, bg = "white", quality = 100)
 
 #### NEW VS. PREVIOUS (NATIONAL) ####
 mat <- as.matrix(table(paste0(all.crit2$category.herb, "_new"), 
                        paste0(all.crit2$category.inv, "_prev")))
 mat
-mat <- mat[c(1,2,6,5,3,4), rev(c(1,2,6,5,3,4))]
+mat <- mat[c(1, 2, 6, 5, 3, 4), rev(c(1, 2, 6, 5, 3, 4))]
 mat
 
 #Defining the colors of tracks and links
@@ -502,7 +491,7 @@ chordDiagram(mat, big.gap = 10, annotationTrack = "grid", annotationTrackHeight 
              )
 
 #Putting legends on
-sec.ind <- c("CR","EN","VU","NT","LC","NE","NE","LC","NT","VU","EN","CR")#,"EW","EX")
+sec.ind <- c("CR", "EN", "VU", "NT", "LC", "NE", "NE", "LC", "NT", "VU", "EN", "CR"))
 for(si in get.all.sector.index()) {
   lab <- sec.ind[which(si == get.all.sector.index())]
   xlim = get.cell.meta.data("xlim", sector.index = si, track.index = 1)
@@ -518,10 +507,10 @@ for(si in get.all.sector.index()) {
               facing = "inside", niceFacing = TRUE, col = "black")
     }  
 }
-legend("topleft","Forest inventory assess.", bty="n", cex=1.2, adj=c(-0.55,3))
-legend("topright","Forest inventory plus herbaria assess.", bty="n", cex=1.2, adj=c(0.10,3))
-legend("top",legend=expression(bold("Changes in IUCN categories after adding herbaria data")),
-       bty="n",horiz=F,cex=1.5,x.intersp=-0.7,y.intersp=-0.3)
+legend("topleft","Forest inventory assess.", bty = "n", cex = 1.2, adj=c(-0.55, 3))
+legend("topright","Forest inventory plus herbaria assess.", bty = "n", cex = 1.2, adj = c(0.10, 3))
+legend("top", legend=expression(bold("Changes in IUCN categories after adding herbaria data")),
+       bty = "n",horiz = F,cex = 1.5, x.intersp = -0.7, y.intersp = -0.3)
 
 dev.off()
 }

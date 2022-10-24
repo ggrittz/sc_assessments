@@ -1,10 +1,10 @@
-#### POPULATION DECLINE FOR MISSING YEARS ####
+##### POPULATION DECLINE FOR MISSING YEARS #####
 library(ConR)
 library(tidyverse)
 
 #devtools::install_github("gdauby/ConR@devel")
 
-#### PREPARING DATA ####
+##### PREPARING DATA #####
 #lower conf interval
 lower_popsize <- readRDS("data/03_timeseries_lower_popsize.rds")
 lower_popsize <- tibble::rownames_to_column(lower_popsize, "species")
@@ -18,7 +18,7 @@ fit_popsize$species <- gsub("\\.", " ", fit_popsize$species)
 upper_popsize <- readRDS("data/03_timeseries_upper_popsize.rds")
 upper_popsize <- tibble::rownames_to_column(upper_popsize, "species")
 
-####POPULATION SIZE####
+##### POPULATION SIZE #####
 colClean <- function(x){ colnames(x) <- gsub("trees_", "", colnames(x)); x} 
 lower_popsize = colClean(lower_popsize)
 fit_popsize = colClean(fit_popsize)
@@ -26,16 +26,16 @@ upper_popsize = colClean(upper_popsize)
 
 known.years = c(1850, 1985:2019)
 
-## OBTAINING POPULATION SIZES FOR MISSING YEARS ##
-## Getting pop. sizes for all possible generation lengths
+##### OBTAINING POPULATION SIZES FOR MISSING YEARS #####
+# Getting pop. sizes for all possible generation lengths
 gen.lengths <- c(10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100)
-pos.gen.length <- sort(unique(gen.lengths * rep(c(1:3), each=length(gen.lengths))), decreasing = TRUE)
+pos.gen.length <- sort(unique(gen.lengths * rep(c(1:3), each = length(gen.lengths))), decreasing = TRUE)
 miss.years <- 2019 - pos.gen.length
 miss.years1 <- miss.years[miss.years < 1850]
 miss.years2 <- miss.years[miss.years > 1850 & miss.years < 1985]
 miss.years3 <- c(miss.years1, miss.years2)
 
-#### Looping the pop. decline trends for each species and time interval ####
+##### Looping the pop. decline trends for each species and time interval #####
 require(snow)
 require(doSNOW)
 require(foreach)
@@ -100,7 +100,7 @@ mean.pop.conR <- cbind.data.frame(species = rownames(mean.pop.conR), mean.pop.co
 high.pop.conR <- cbind.data.frame(species = rownames(high.pop.conR), high.pop.conR, 
                                   row.names = NULL, stringsAsFactors = FALSE)
 
-#### SAVING ###
+###### SAVING #####
 
 #Saving the estimated and infered populations (BOTH "OBSERVED" AND ESTIMATED/INTERPOLATED POP SIZES)
 saveRDS(results[[1]], "data/threat_low_pop_sizes_infer.rds")

@@ -1,6 +1,5 @@
 rm(list=ls())
 
-
 df <- read.csv('sc_wo_grassland_df.csv', header = TRUE, sep = ',')
 
 #Upper limit of 1850 being 2500 ha, that is, fully forested
@@ -9,9 +8,7 @@ df <- df[, c(1:10, 46, 11:45)]
 
 #Tree quantity per cell from upper, fit, and lower confidence interval bounds
 pop_lower <- df$krig_lower * df[, 11:46]
-
 pop_fit <- df$krig_fit * df[, 11:46]
-
 pop_upper <- df$krig_upper * df[, 11:46]
 
 #Re-jonining the data

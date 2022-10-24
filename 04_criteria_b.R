@@ -1,4 +1,3 @@
-#Start
 rm(list = ls())
 
 #Libraries
@@ -11,7 +10,7 @@ library(flora)
 library(raster)
 library(rgdal)
 
-####Criteria B: IUCN####
+##### Criteria B: IUCN #####
 
 #Loading inventory data
 sc = readRDS('data_old_stuff/00_sc_buffer.rds')
@@ -20,14 +19,13 @@ occ = read.csv('spp_coords.csv', as.is = TRUE)
 #Loading herbaria data
 herb = read.csv('plantR_herbarium_filtered.csv')
 
-
-#Obtaining family from Flora do Brasil (to add to inventory data)
+#Obtaining families from Flora do Brasil (to add to inventory data)
 sp.unique = unique(occ$species.correct)
 families = get.taxa(sp.unique)
 occ = merge(occ, families[, c("original.search", "family")], by.x = "species.correct", 
             by.y = "original.search", all.x = TRUE, sort = FALSE)
 
-#adjusting inventory data to ConR format
+#Adjusting inventory data to ConR format
 occ_data = occ %>% dplyr::select(lat1, long1, species.correct, family)
 occ_data = occ_data %>% rename(ddlat = lat1, ddlon = long1, tax = species.correct)
 occ_data$ddlat <- round(occ_data$ddlat, 2)
@@ -41,28 +39,27 @@ names(herb) <- c("ddlat", "ddlon", "tax", "family")
 inv_herb = rbind(occ_data, herb)
 
 
+##### EXTENT OF OCCURRENCE (EOO) ##### runned on ConR 1.4!
+  EOO.hull <- ConR::EOO.computing(inv_herb[, 1:3],
+                                  method = "convex.hull",
+                                  method.less.than3 = "not comp",
+                                  export_shp = TRUE,
+                                  exclude.area = FALSE, country_map = NULL,
+                                  write_shp = FALSE, 
+                                  write_results=FALSE, file.name = "EOO.hull", 
+                                  parallel = TRUE, NbeCores = 6) 
 
-##########EXTENT OF OCCURRENCE (EOO)########## ConR 1.4!
-  EOO.hull <- ConR::EOO.computing(inv_herb[, 1:3], 
-                                   method = "convex.hull",
-                                   method.less.than3 = "not comp",
-                                   export_shp = TRUE,
-                                   exclude.area = FALSE, country_map = NULL,
-                                   write_shp = FALSE, 
-                                   write_results=FALSE, file.name = "EOO.hull", 
-                                   parallel = TRUE, NbeCores = 6) 
-
-#extracting the EOO from the object
+#Extracting the EOO from the object
 EOO <- do.call(rbind.data.frame, EOO.hull[grepl("EOO", names(EOO.hull))])
 sp_names <- unique(inv_herb$tax)
 sp_names <- as.data.frame(sp_names)
 sp_names <- sp_names[order(sp_names[,'sp_names']), ]
 dimnames(EOO) <- list(sp_names, "EOO")
 saveRDS(EOO, "data/04_EOO_numeric_herb.rds")
-# EOO <- EOO.hull[[1]]
-# EOO1 <- EOO.hull1[[1]]
+#EOO <- EOO.hull[[1]]
+#EOO1 <- EOO.hull1[[1]]
 
-#extracting the geometry from the object
+#Extracting the geometry from the object
 shps <- EOO.hull[grepl("spatial.polygon", names(EOO.hull))]
 for (i in 1:length(shps))
   slot(slot(shps[[i]], "polygons")[[1]], "ID") <- sp_names[!is.na(EOO$EOO)][i]
@@ -71,7 +68,7 @@ shps_df <- SpatialPolygonsDataFrame(shps, data.frame(tax = names(shps), row.name
 #shps_df <-EOO.hull[[2]]
 shps_df$tax <- as.character(shps_df$tax)
 
-#Inspecting
+#Inspecting an example
 sp <- "Araucaria angustifolia"
 plot(shps_df[sp,])
 points(occ_data[occ_data$tax %in% sp, 2:1], pch=19)
@@ -83,7 +80,7 @@ saveRDS(shps_df, "data/04_spp_convexhull_polygons_herb.rds")
 saveRDS(shps_df_sf, "data/04_spp_convexhull_polygons_sf_uncropped_herb.rds")
 
 
-##########SUBPOPULATIONS########## New functions already on ConR 2.0
+##### SUBPOPULATIONS ##### New functions already on ConR 2.0
 devtools::install_github("gdauby/ConR@devel")
 
 radius <- subpop.radius(inv_herb[, c(1:3)], factor.div = 10, quant.max = 0.9)
@@ -110,7 +107,7 @@ inv_herb <- inv_herb[order(inv_herb$tax), ]
 table(radius$tax %in% inv_herb$tax)
 #hist(radius.new$radius.final, nclass = 40)
 
-#Dropping 'radius' column to avoid shitty coding
+#Dropping 'radius' column to avoid bad coding
 radius.new <- radius.new[, -c(4)]
 #Assign the median km as a maximum dispersal distance
 median(radius.new$radius.final, na.rm=T) #28km
@@ -132,21 +129,12 @@ names(SUB1_teste)[1] <- "Number_subpop"
 saveRDS(SUB1_teste, 'data/04_n_subpop_herb.rds')
 
 
-####AREA OF OCCUPANCY (AOO)####
+##### AREA OF OCCUPANCY (AOO) #####
 
 #Loading data
 sc = readRDS('data_old_stuff/00_sc_buffer.rds')
 
 #Occurrence data from above (occ_data)
-
-##Setting raster options
-raster::removeTmpFiles(0.5)
-raster::rasterOptions(tmpdir = "E://raster_TEMP//", 
-                      tmptime = 1.5, 
-                      #timer = TRUE,
-                      #tolerance = 0.5,
-                      #chunksize = 1e+08,
-                      maxmemory = 1e+09)
 
 #ConR 1.3 yet
 AOO <- AOO.computing(inv_herb[, c(1:3)], 
@@ -160,20 +148,19 @@ AOO <- as.data.frame(AOO)
 saveRDS(AOO, 'data/04_AOO_herb.rds')
 gc()
 
-
-
-#### NUMBER OF LOCATIONS #### #devtools::install_github("gdauby/ConR@devel") NEW FUNCTIONS!
+                                 
+##### NUMBER OF LOCATIONS ##### #devtools::install_github("gdauby/ConR@devel") NEW FUNCTIONS on ConR 2.0!
 ucs <- readRDS('data_old_stuff/04_strict_ucs_sc.rds')
 
 locations <- locations.comp(inv_herb[, c(1:3)], 
-                           method = "fixed_grid",
-                           nbe_rep = 30, # number of raster with random starting position
-                           Cell_size_locations = 10, #grid size in kilometres used for estimating the number of location
-                           Rel_cell_size=0.05,
-                           protec.areas = ucs, #a SpatialPolygonsDataFrame, shapefile with protected areas.
-                           ID_shape_PA= "NAME", # field name of protected areas with ID
-                           method_protected_area="no_more_than_one", 
-                           parallel=TRUE, NbeCores=6)
+                            method = "fixed_grid",
+                            nbe_rep = 30, # number of raster with random starting position
+                            Cell_size_locations = 10, #grid size in kilometres used for estimating the number of location
+                            Rel_cell_size = 0.05,
+                            protec.areas = ucs, #SpatialPolygonsDataFrame, shapefile with protected areas.
+                            ID_shape_PA= "NAME", #field name of protected areas with ID
+                            method_protected_area="no_more_than_one", 
+                            parallel = TRUE, NbeCores = 6)
 
 table(names(locations[[3]]) == names(locations[[4]]))
 
@@ -186,22 +173,14 @@ tmp_loc <- tmp_loc[order(tmp_loc$species), ]
 saveRDS(tmp_loc, 'data/04_number_of_locations_herb.rds')
 
 
-#### SEVERE FRAGMENTATION ####
+##### SEVERE FRAGMENTATION #####
 rm(list=ls())
-##Setting raster options
-raster::showTmpFiles()
-raster::removeTmpFiles(h = 4)
-raster:::tmpDir()
-raster::rasterOptions(tmpdir = 'D://Rtemp//raster')
-raster::rasterOptions(tmptime = 4,
-                      chunksize = 1e+08,
-                      maxmemory = 1e+09)
 
-##Getting the population radius for each species
+#Getting the population radius for each species
 tmp2 <- readRDS("data/04_species_subpop_radius_herb.rds")
 tmp2$radius <- as.double(tmp2$radius)
 
-##Getting the AOO for each species
+#Getting the AOO for each species
 AOO <- readRDS("data/04_AOO_herb.rds")
 AOO <- tibble::rownames_to_column(AOO, "tax")
 
@@ -222,7 +201,7 @@ require(parallel)
 require(doParallel)
 for(i in 1:length(dados)) {
   
-  #i=1
+  #i = 1
   
   ##Getting the list of species data
   list_data <- ConR:::coord.check(XY = dados[[i]],
@@ -379,7 +358,7 @@ critB_opt <- cbind.data.frame(EOO[, c("tax", "EOO")],
 saveRDS(critB_opt, "data/04_critB_herb.rds")
 
 
-#### APPLYING CRITERIA B #### Need data from criterion C which needs data from pop.decline
+##### APPLYING CRITERIA B ##### Need data from criterion C which needs data from pop.decline
 
 #Getting the estimates for criterion B
 critB <- readRDS("data/04_critB_herb.rds")
@@ -414,7 +393,7 @@ tmp <- merge(eoo.decline, hab, by.x= "tax", by.y = "Name_submitted", all.x = TRU
 tmp <- tmp[order(tmp$tax),]
 table(tmp$tax == eoo.decline$tax)
 eoo.decline$net.loss <- eoo.decline$recover - eoo.decline$loss 
-hist(eoo.decline$net.loss, nclass=80)
+hist(eoo.decline$net.loss, nclass = 80)
 eoo.decline$declineB[eoo.decline$net.loss >=0.1 & tmp$ecol.group %in% "pioneer"] <- "Not Decreasing"
 table(eoo.decline$declineB, useNA = "always")
 
@@ -451,26 +430,24 @@ critB$sever.frag <- 100 * critB$Nbe_subPop/ (critB$AOO / 4) > 50
 
 #### PERFOMING THE ASSESSMENTES OF CRITERION B ####
 results_Cb <- cat_criterion_b(EOO = critB$EOO,
-                                  AOO = critB$AOO,
-                                  locations = critB$nbe_loc_total,
-                                  sever.frag = critB$sever.frag,
-                                  protected = critB$Nbe_loc_PA, 
-                                  decline = critB$declineB,
-                                  protected.threshold = 100 
+                              AOO = critB$AOO,
+                              locations = critB$nbe_loc_total,
+                              sever.frag = critB$sever.frag,
+                              protected = critB$Nbe_loc_PA, 
+                              decline = critB$declineB,
+                              protected.threshold = 100 
 )
+                                 
 sum((100 * table(results_Cb$ranks_B, useNA = "always")/dim(critB)[1])[c(1,2,4)]) #31.67% #26.84% (herb)
 
 #Saving the results
 results_Cb <- do.call(cbind.data.frame, c(results_Cb, stringsAsFactors = FALSE))
 critB_opt.all <- critB[,c("tax","EOO","AOO","Nbe_subPop","nbe_loc_total","protected","declineB","sever.frag")]
 critB_opt.all[, c("category_B", "category_B_code","category_B1","category_B2")] <- NA_character_
-critB_opt.all[, c("category_B", "category_B_code","category_B1","category_B2")] <-
-  results_Cb
+critB_opt.all[, c("category_B", "category_B_code","category_B1","category_B2")] <- results_Cb
 critB_opt.all[is.na(critB_opt.all$AOO),]
 
 saveRDS(critB_opt.all, "data/critB_herb.rds")
 saveRDS(as.data.frame(critB_opt.all), "data/criterionB_herb.rds")
-
-
 
 rm(list=ls())

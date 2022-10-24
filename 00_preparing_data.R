@@ -1,7 +1,6 @@
-#Start
 rm(list = ls())
 
-#####Libraries####
+##### Libraries #####
 {
   library(sf)
   library(raster)
@@ -15,7 +14,7 @@ rm(list = ls())
   library(tidyverse)
 }
 
-#####Loading and adjusting data####
+##### Loading and adjusting data #####
 sc_buffer = readRDS('rds_files/00_sc_buffer.rds')
 #saveRDS(sc_buffer, 'data/00_sc_buffer.rds')
 sc_wo_grassland = readRDS('rds_files/00_sc_wo_grassland.rds')
@@ -25,7 +24,7 @@ grid_env = readRDS('rds_files/00_grid_env.rds')
 
 #Southern Brazil TreeCo points
 points = read.csv('treeco/treeco_for_guilherme_grittz/sites_data_set_v1.csv',
-                  header = T, sep = ',')#Cropping all points that are inside the state's buffer
+                  header = T, sep = ',') #Cropping all points that are inside the state's buffer
 coordinates(points) <- ~long1+lat1
 
 #Points that are in the buffer area only
@@ -42,7 +41,6 @@ points = as.data.frame(points)
 n_occur <- data.frame(table(points$SiteCode.x))
 n_occur[n_occur$Freq > 1,]
 dup = points[points$SiteCode.x %in% n_occur$Var1[n_occur$Freq > 1],]
-
 
 #All species found in 'points'
 species_list = read.csv('treeco/treeco_for_guilherme_grittz/abundance_data_set_per_sitecode_v1.csv',

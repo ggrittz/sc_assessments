@@ -1,14 +1,13 @@
-devtools::install_github("gdauby/ConR@devel")
-####CRITERIA A: POPULATION DECLINE####
-
 rm(list=ls())
+
+##### CRITERIA A: POPULATION DECLINE #####
 
 library(ConR)
 library(red)
 library(circlize)
 library(flora)
 
-#### LOADING THREAT POPULATION SIZE DATA (TREECO) ###
+##### LOADING THREAT POPULATION SIZE DATA (TREECO) #####
 #Already with pop. sizes estimated for all necessary years
 res.means <- readRDS("data/threat_mean_pop_sizes_infer.rds")
 low.pop.sizes <- readRDS("data/threat_low_pop_sizes_for_ConR.rds")
@@ -22,12 +21,12 @@ decline.models <- matrix(NA, ncol = 2, nrow = nrows,
                          dimnames = list(spp, c("Before 1985", "After 1985")))
 
 for(x in 1:length(res.means)) {
-  decline.models[x, 1] <- unique(res.means[[x]]$Modelo[res.means[[x]]$Year<1985])
-  decline.models[x, 2] <- unique(res.means[[x]]$Modelo[res.means[[x]]$Year>1985])
+  decline.models[x, 1] <- unique(res.means[[x]]$Modelo[res.means[[x]]$Year < 1985])
+  decline.models[x, 2] <- unique(res.means[[x]]$Modelo[res.means[[x]]$Year > 1985])
 }
 
-#### LOADING THREAT HABITAT AND ECOLOGY DATA ####
-## Includes species info on Generation Length and Proportion of mature individuals
+##### LOADING THREAT HABITAT AND ECOLOGY DATA #####
+#Includes species info on Generation Length and Proportion of mature individuals
 hab <- read.csv("treeco/threat_habitats.csv", as.is = TRUE)
 
 #Adjusting hab names
@@ -81,9 +80,7 @@ names(PopData)[1] <- "species"
 
 PopData <- PopData[order(PopData$species), ]
 
-
 ## Filtering the populational datasets
-
 #Correcting those names again...
 low.pop.sizes[129, 1] <- "Erythrina crista-galli"
 mean.pop.sizes[129, 1] <- "Erythrina crista-galli"
@@ -168,7 +165,7 @@ rli.all <- apply(all.GL[,19:37], 2, red::rli, boot = TRUE, runs = 4999)
 ###################
 
 jpeg(filename = "figures/Figure_SX.jpg", width = 4000, height = 2000, units = "px", pointsize = 12,
-     res = 300, family = "sans", type="cairo", bg="white", quality = 100)
+     res = 300, family = "sans", type = "cairo", bg = "white", quality = 100)
 gls = c(10,20,25,30,35,40,45,50,55)
 par(mfrow=c(1,2))
 par(mar=c(3,3.5,0.75,0.5), mgp=c(1.9,0.25,0),tcl=-0.2,las=1)
@@ -179,30 +176,30 @@ plot(rli.all[2,grepl("A1\\.", colnames(rli.all))] ~ gls, #type = "b",
      cex.lab = 1.2,
      xlab = "Generation lenght (years)", ylab = "Red List Index", 
      pch=19, ylim = c(0.39,1))
-axis(1, at=gls, cex.axis = 1)
-#axis(2, at=c(60,80,100,120,140,160,180,200,220), cex.axis = 1)
-arrows(x0=gls, y0 = rli.all[1,grepl("A1\\.", colnames(rli.all))], 
+axis(1, at = gls, cex.axis = 1)
+#axis(2, at = c(60,80,100,120,140,160,180,200,220), cex.axis = 1)
+arrows(x0 = gls, y0 = rli.all[1,grepl("A1\\.", colnames(rli.all))], 
        y1 = rli.all[3,grepl("A1\\.", colnames(rli.all))],
        code = 3, angle = 90, length = 0.05)
-legend("topright", expression(bold(A)), bty="n", cex=1.3)
+legend("topright", expression(bold(A)), bty="n", cex = 1.3)
 abline(h=rli.all[2,1], lty = 2)
 
-#subcriterion A2
+#Subcriterion A2
 plot(rli.all[2,grepl("A2\\.", colnames(rli.all))] ~ gls, #type = "b",
      #xaxp = c(1890, 2018, 5), yaxp = c(60, 220, 6), 
      xaxt = "n", #yaxt = "n", 
      cex.lab = 1.2,
      xlab = "Generation lenght (years)", ylab = "Red List Index", 
      pch=19, ylim = c(0.39,1))
-axis(1, at=gls, cex.axis = 1)
-arrows(x0=gls, y0 = rli.all[1,grepl("A2\\.", colnames(rli.all))], 
+axis(1, at = gls, cex.axis = 1)
+arrows(x0 = gls, y0 = rli.all[1,grepl("A2\\.", colnames(rli.all))], 
        y1 = rli.all[3,grepl("A2\\.", colnames(rli.all))],
        code = 3, angle = 90, length = 0.05)
-legend("topright", expression(bold(B)), bty="n", cex=1.3)
-abline(h=rli.all[2,11], lty = 2)
+legend("topright", expression(bold(B)), bty = "n", cex = 1.3)
+abline(h = rli.all[2,11], lty = 2)
 legend("bottomleft", c("Group-specific", "Fixed"),
-       lty = c(2,0), pch=c(NA,19),
-       bty = "n", lwd=2)
+       lty = c(2,0), pch = c(NA,19),
+       bty = "n", lwd = 2)
 dev.off()
 
 #Where are the changes related to low generation lengths (25 years)
@@ -212,24 +209,24 @@ critA.gl25 <- criterion_A(mean.pop.sizes,
                           subcriteria = c("A1","A2"),
                           generation.time = 25)
 
-critA.gl25[critA$A1 %in% "CR" & critA.gl25$A1 %in% "EN",] #0 cases
-critA.gl25[critA$A1 %in% "CR" & critA.gl25$A1 %in% "VU",] #0 cases
-critA.gl25[critA$A1 %in% "CR" & critA.gl25$A1 %in% "LC or NT",] #0 cases
-critA.gl25[critA$A1 %in% "EN" & critA.gl25$A1 %in% "VU",] #1 case
-critA.gl25[critA$A1 %in% "EN" & critA.gl25$A1 %in% "LC or NT",] #11 cases
-critA.gl25[critA$A1 %in% "VU" & critA.gl25$A1 %in% "LC or NT",] #331 cases
+critA.gl25[critA$A1 %in% "CR" & critA.gl25$A1 %in% "EN", ] #0 cases
+critA.gl25[critA$A1 %in% "CR" & critA.gl25$A1 %in% "VU", ] #0 cases
+critA.gl25[critA$A1 %in% "CR" & critA.gl25$A1 %in% "LC or NT", ] #0 cases
+critA.gl25[critA$A1 %in% "EN" & critA.gl25$A1 %in% "VU", ] #1 case
+critA.gl25[critA$A1 %in% "EN" & critA.gl25$A1 %in% "LC or NT", ] #11 cases
+critA.gl25[critA$A1 %in% "VU" & critA.gl25$A1 %in% "LC or NT", ] #331 cases
 
 #Inpecting some classic examples
-critA[critA$species %in% "Araucaria angustifolia",]
-critA.gl25[critA$species %in% "Araucaria angustifolia",]
-critA[critA$species %in% "Euterpe edulis",]
-critA.gl25[critA$species %in% "Euterpe edulis",]
+critA[critA$species %in% "Araucaria angustifolia", ]
+critA.gl25[critA$species %in% "Araucaria angustifolia", ]
+critA[critA$species %in% "Euterpe edulis", ]
+critA.gl25[critA$species %in% "Euterpe edulis", ]
 critA[critA$species %in% "Cedrela fissilis",]
-critA.gl25[critA$species %in% "Cedrela fissilis",]
-critA[critA$species %in% "Cecropia pachystachya",]
-critA.gl25[critA$species %in% "Cecropia pachystachya",]
+critA.gl25[critA$species %in% "Cedrela fissilis", ]
+critA[critA$species %in% "Cecropia pachystachya", ]
+critA.gl25[critA$species %in% "Cecropia pachystachya", ]
 
-## Renaming columns
+#Renaming columns
 names(all.GL)[grepl("\\.1$", names(all.GL))] <- gsub("\\.1$", ".10ys", names(all.GL)[grepl("\\.1$", names(all.GL))])
 names(all.GL)[grepl("\\.2$", names(all.GL))] <- gsub("\\.2$", ".20ys", names(all.GL)[grepl("\\.2$", names(all.GL))])
 names(all.GL)[grepl("\\.3$", names(all.GL))] <- gsub("\\.3$", ".25ys", names(all.GL)[grepl("\\.3$", names(all.GL))])
@@ -240,8 +237,10 @@ names(all.GL)[grepl("\\.7$", names(all.GL))] <- gsub("\\.7$", ".45ys", names(all
 names(all.GL)[grepl("\\.8$", names(all.GL))] <- gsub("\\.8$", ".50ys", names(all.GL)[grepl("\\.8$", names(all.GL))])
 names(all.GL)[grepl("\\.9$", names(all.GL))] <- gsub("\\.9$", ".55ys", names(all.GL)[grepl("\\.9$", names(all.GL))])
 
-## Renaming the LC category
+#Renaming the LC category
 all.GL[] <- lapply(all.GL, gsub, pattern = "^LC$", replacement = "LC or NT")
 
-#### Saving ####
+##### Saving #####
 saveRDS(all.GL, "data/criterionA_all_GLs.rds")
+
+rm(list=ls())

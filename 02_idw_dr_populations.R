@@ -3,7 +3,7 @@ library(gstat)
 library(data.table)
 library(tidyverse)
 
-####Start####
+##### Start #####
 rm(list = ls())
 
 #Loading RDS
@@ -11,7 +11,7 @@ points = readRDS('data/00_points_filtered_nm.rds')
 grid_env = readRDS('data_old_stuff/00_grid_env.rds')
 sc_wo_grassland = readRDS('data_old_stuff/00_sc_wo_grassland.rds')
 
-####Data adjustments####
+##### Data adjustments #####
 #Species list from abundance_data_set_per_sitecode_v1.csv
 species_list = readRDS('data/checked_specieslist.rds')
 
@@ -24,13 +24,13 @@ plots_coord <- points %>% dplyr::select(SiteCode.x, long1, lat1)
 plots_coord$SiteCode.x <- as.character(plots_coord$SiteCode.x)
 
 #Obtaining coordinates point for each register based on the ID
-joined_data <- merge(species_list, plots_coord, by.x = 'SiteCode', by.y = 'SiteCode.x', sort = FALSE, all.y = TRUE)
+joined_data <- merge(species_list, plots_coord, by.x = 'SiteCode', 
+                     by.y = 'SiteCode.x', sort = FALSE, all.y = TRUE)
 sum(is.na(joined_data))
 
 #Choosing only what is a tree as defined before
 trees = read.csv('sc_trees_list.csv', header = TRUE, sep = ';')
 trees = trees$species
-
 joined_data <- joined_data[joined_data$species.correct %in% trees]
 
 #How many species?
@@ -60,10 +60,11 @@ species <- sort(unique(joined_data$species.correct))
 #Creating an empty list to save the IDW results
 sp_list <- setNames(vector('list', length(species)), species)
 
-####Inverse Distance Weightning####
+##### Inverse Distance Weightning #####
 for (sp in species) {
   gstat_spec <- joined_data[joined_data$species.correct == sp, ]
-  out <- idw(rel_ab ~ 1, gstat_spec, grid_env, nmax=50, maxdist=0.125, idp=2, debug.level=0)
+  out <- idw(rel_ab ~ 1, gstat_spec, grid_env, nmax = 50, 
+             maxdist = 0.125, idp = 2, debug.level=0)
   out@data[out@data < 0] <- 0
   out <- crop(out, sc_wo_grassland)
   sp_list[[sp]] <- out[[1]]
@@ -74,7 +75,7 @@ for (sp in species) {
 sp_list2<-do.call(cbind, sp_list)
 sp_list3 <- as.data.frame(sp_list2)
 sp_list3[is.na(sp_list3)] = 0
-sum_populations <- sum(sp_list3, na.rm=T)
+sum_populations <- sum(sp_list3, na.rm = T)
 sum_populations
 
 #Joining coordinates/trees per ha for each fit of the kriging model (lower, fit, upper)
@@ -96,7 +97,7 @@ names(df_upper)[2] <- "latitude"
 names(df_upper)[3] <- "krig_upper"
 
 #Testing a plot
-coordinates(df_upper)<-~longitude+latitude
+coordinates(df_upper) <- ~longitude+latitude
 spplot(df_upper, 'Araucaria.angustifolia')
 
 #Saving what is needed

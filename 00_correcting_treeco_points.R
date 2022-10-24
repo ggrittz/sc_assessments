@@ -1,7 +1,7 @@
 library(dplyr)
 library(data.table)
 
-#### FIXING TREECO DA/DR ####
+##### ADJUSTING TreeCo DA/ha #####
 points = readRDS('data/00_points_filtered.rds')
 points = as.data.frame(points)
 plots_coord <- points %>% dplyr::select(SiteCode.x, long1, lat1)
@@ -36,7 +36,7 @@ species_list[species.correct %in% "Pleroma mutabile", species.correct := "Plerom
 species_list[species.correct %in% "Pterocarpus rohrii", species.correct := "Pterocarpus violaceus"]
 
 
-#Correcting new synonyms from Flora do Brasil 2020 and stuff that occur in SC (IFFSC data)
+#Correcting new synonyms from Flora do Brasil 2020 and stuff that occur in SC (IFFSC regional data)
 syn.br <- read.csv("new_synonyms_floraBR.csv", na.strings = c(""," ",NA), as.is = TRUE)
 syn.br <- syn.br[syn.br$status %in% c("replace", "invert"), ]
 for (i in 1:dim(syn.br)[1]) {
@@ -49,7 +49,6 @@ for (i in 1:dim(syn.br)[1]) {
 }
 
 #Now IFFSC
-#Correcting new synonyms from Flora do Brasil 2020 and stuff that occur in SC (IFFSC data)
 syn.br <- read.csv("new_synonyms_IFFSC.csv", sep = ';')
 syn.br <- syn.br[syn.br$status %in% c("replace", "invert"), ]
 for (i in 1:dim(syn.br)[1]) {
@@ -61,18 +60,22 @@ for (i in 1:dim(syn.br)[1]) {
     species_list$species.correct[species_list$species.correct %in% sp.i] <- rpl.i
 }
 
-
 #Obtaining coordinates point for each register based on the SiteCode
-joined_data <- merge(species_list, points, by.x = 'SiteCode', by.y = 'SiteCode.x', sort = FALSE, all.y = TRUE)
+joined_data <- merge(species_list, 
+                     points, 
+                     by.x = 'SiteCode', 
+                     by.y = 'SiteCode.x', 
+                     sort = FALSE, 
+                     all.y = TRUE)
 
-#Removing N less than 1 to avoid bias
+#Removing N less than 1
 joined_data <- joined_data %>% filter(N.x >= 1)
 
 #Re-measuring DA/ha for species (and converting all plots different from 1 ha sampling effort (e.g., 0.4 ha) to 1 ha)
 #First, we re-measure N, since there are some differences in TreeCo
 joined_data$Ntotal_new = with(joined_data, ave(N.x, SiteCode, FUN = sum))
 
-#Then we adjust taking effort into consideration
+#Then we adjust taking sampling effort into consideration
 joined_data$DA_new = joined_data$Ntotal_new / joined_data$effort_ha.x
 
 joined_data = joined_data[, c("SiteCode", "Ntotal_new", "DA_new")]
